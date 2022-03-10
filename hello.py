@@ -24,17 +24,30 @@ temp = {
 # for i in temp:
 #     print(temp[i])
 
-text = "RSTCS JLSLR SLFEL GWLFI ISIKR MGL"
+text = "ABAABCCACBBC"
+# text = "RSTCS JLSLR SLFEL GWLFI ISIKR MGL"
 
 text = ''.join(text.split())
 print(text)
+n = 4
 
-table = 2 * [""]
+table = n * [""]
 
 for i in range(len(text)):
-    table[i % 2] += text[i]
+    table[i % n] += text[i]
 
 print(table)
+
+
+exit(0)
+alf_list = ['a', 'c', 'd', 'g', 'e', 'z', 'v', 'h', 'f', 'g']
+
+chave = input("Qual a chave? ")
+# alf_list.sort()
+# print(table)
+# print(alf_list)
+
+print(len(chave))
 def count(text):
     hist = dict()
     for i in range(26):
