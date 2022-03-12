@@ -15,7 +15,9 @@ class attacker:
         # A dict with the frequency for the letters of an alfabet
         self.alfabet_hist_freq = dict()
 
-
+    def set_frequency_file_path(self, file_path):
+        self.frequency_file_path = file_path
+    
     def __get_cossets__(self, text, cossets_count):
         # A table with the cossets
         table = cossets_count * [""]
@@ -46,8 +48,7 @@ class attacker:
         # Getting the frequency of every char in the histogram
         for char in hist:
             frequency_dict[char] = hist[char] / total_chars_count
-            
-        # print(total_chars_count, hist, frequency_dict)
+
 
         return frequency_dict
         
@@ -78,25 +79,19 @@ class attacker:
             char_list.append(chr(char_idx))
 
         alph_size = len(char_list)
-        # print(char_list, alph_size)
+
         
         for cosset in cossets_table:
             freq_dict = self.__get_freq_histogram__(cosset)
 
-            # char_list = list(freq_dict.keys())
-
-            # print(char_list)
-
-            # print(alph_size)
-            # print(freq_dict)
+            
             sum_max = 0
             shift_ans = 0
             for shift_count in range(alph_size):
 
-                # print(shift_count)
+                
                 sum_temp = 0
                 for i in range(alph_size):
-                    # print(char_list[i], char_list[(i - shift_count) % alph_size])
 
                     if freq_dict.get(char_list[(i + shift_count) % alph_size]) != None:
                         sum_temp += self.alfabet_hist_freq[char_list[i]] * freq_dict[char_list[(i + shift_count) % alph_size]]
@@ -155,29 +150,11 @@ class attacker:
 
         key_size_list = key_size_list[0:self.max_key_listing]
 
-        # Chama a funcao pra descobrir a chave dado um tamanho
 
         possible_keys_list = list(
             map(lambda key_tuple: 
                 self.__get_key__(key_size = key_tuple[0], cossets_table = key_tuple[2]),
-                # key_tuple[0],
                key_size_list))
 
         return possible_keys_list        
 
-
-    """
-    * Com um tamanho estimado, obter a chave a partir do texto cifrado
-    - Com os cossets obtidos no passo anterior, obtenha a frequencia de cada letra no cosset
-    - Com as frequencias de letras em cada cosset, pegue as frequencias das letras do alfabeto que aparecem em cada palavra (cosset). Bote elas em ordem crescente
-    - Faça o mesmo com as frequencias do cosset.
-    - Multiplique na ordem e some tudo (tipo, se as frequencias são A_0 : 0.2, B_0: 0.7, C_0:0.14 no alfabeto, e a frequencia do cosset é A_1: 0.9, B_1:0.5, C_1:0.8, faça soma_0 = A_0 * A_1 + B_0 * B_1 + C_0 * C_1 )
-    - Faça um shift das frequencias do cosset pra esquerda
-    - Novamente, multiplique as frequencias do cosset pelas do alfabeto e some tudo (do exemplo acima, temos agora soma_1 = A_0 * B_1 + B_0 * C_1 + C_0 * A_1)
-    - Faz o shift pra esquerda denovo
-    - Repita o processo ate num dar mais pra fazer shift
-    - Se a maior soma é soma_i, então o numero da chave que a gente quer saber na primeira posicao é i 
-    - Repita o processo para os outros cossets, até advinhar todos os numeros da chave (a ordem das letras no alfabeto)
-
-    https://www.youtube.com/watch?v=LaWp_Kq0cKs
-    """

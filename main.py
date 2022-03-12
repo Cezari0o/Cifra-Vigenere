@@ -1,70 +1,117 @@
 from vigenere import cipher
 from attacker import attacker
+from math import ceil
+from menu import menu
 
+read_from_file = True
+max_key_list = 5
+fr_file = "frequency_en.txt"
 
-def main():
-
-    escolha = int(
-        input("""Digite 1 para cifrar uma mensagem;
-Digite 2 para decifrar uma mensagem;
-Digite 3 para advinhar uma chave de um texto cifrado;
-Escolha: """))
-
-    ler_arquivo = True
-
-    if escolha == 1:
-        chave = input("Digite a chave: ")
-        text = input("Digite o texto a ser cifrado: ")
-        cifra = cipher(chave)
-        cifrado = cifra.encrypt(text)
-        print("Texto cifrado: ", cifrado)
-    elif escolha == 2:
-        chave = input("Digite a chave: ")
-        text = input("Digite o texto a ser decifrado: ")
-        cifra = cipher(chave)
-        print("Texto decifrado: ", cifra.decrypt(text))
-    elif escolha == 3:
-
-        fr_file = "frequency_ptbr.txt"
-        text = ""
-        if ler_arquivo:
-            reader = open(input("Digite o caminho do arquivo: "))
-            text = reader.read()
-
-        else:
-            text = input("Digite o texto cifrado: ")
-        
-        key_len = int(
-            input("Digite o tamanho maximo da chave que voce espera: "))
-
-        atacante = attacker(fr_file, max_key_listing=5)
-
-        keys = atacante.guess_key(crypted_text=text, max_key_len=key_len)
-
-        
-
-        # print(keys)
-
-        print("Chaves encontradas / Texto decifrado: \n")
-        for k in keys:
-            cifra = cipher(k)
-            print(k, cifra.decrypt(text), sep=' / ', end="\n\n")
+def read_text():
+    text = ""
+    
+    if read_from_file:
+        text = open(input("Digite o caminho do arquivo: ")).read()
 
     else:
-        vargas = open("test/text_vargas.txt")
-        texto = vargas.read()
+        text = input("Digite o texto: ")
 
-        atacante = attacker("frequency_en.txt", max_key_listing=3)
-        c = cipher("CHAVESUPERSECRETA")
+    return text
 
-        keys = atacante.guess_key(crypted_text=c.encrypt(plain_text=texto),
-                                  max_key_len=100)
 
+def cipher_msg():
+
+    key = input("Digite a chave: ")
+    key = ''.join(key.split())
+    
+    text = read_text()
+    encipher = cipher(key)
+    cipher_text = encipher.encrypt(text)
+    print("\n--> Texto cifrado: ")
+    print(cipher_text)
+
+    
+def decipher_msg():
+    key = input("Digite a chave: ")
+    key = ''.join(key.split())
+
+    text = read_text()
+    decipher = cipher(key)
+    print("\n--> Texto decifrado: ") 
+    print(decipher.decrypt(text))
+    
+
+def find_key():
+    text = ""
+    
+    text = read_text()
+    
+    key_len = int(
+        input("Digite o tamanho maximo da chave que voce espera: "))
+
+    cracker = attacker(fr_file, max_key_listing=max_key_list)
+
+    keys = cracker.guess_key(crypted_text=text, max_key_len=key_len)
+
+    print("\nChaves encontradas / Texto decifrado: \n")
+    for k in keys:
+        decipher = cipher(k)
+        print(k, decipher.decrypt(text), sep=' / ', end="\n\n -------------------------------------------------------------------------------------------------------- \n\n")
+
+def iterative_key_search():
+    key_len = int(input("Digite o tamanho maximo de chave que voce espera: "))
+
+    cracker = attacker(fr_file, max_key_listing=max_key_list)
+    
+    text = read_text()
+
+    while True:
+        keys = cracker.guess_key(crypted_text = text, max_key_len = key_len)
+
+        print("\nTamanho da chave:", key_len)
+        print("\nChave / Texto Decifrado\n")
         for k in keys:
-            print(k)
+            decipher = cipher(k)
 
-            # c = cipher(k)
-            # print(c.decrypt(c.encrypt(texto)))
+            print(k, decipher.decrypt(text), sep=' / ', end="\n\n -------------------------------------------------------------------------------------------------------- \n\n")
+            
+        continue_exec = (input("Continuar o programa? [Digite 'S' para continuar, sem aspas] ")).upper()
 
+        if continue_exec == 'S':
+
+            key_size_incr = ceil(key_len / 2)
+
+            key_size = '0'
+            while key_size != '1' and key_size != '2':
+                key_size = (input("""O tamanho da chave é maior ou menor?
+1 - maior ({})
+2 - menor ({})
+> """.format(key_len + key_size_incr, key_len - key_size_incr)))
+
+            
+            if key_size == '1':
+                key_len += key_size_incr
+
+            else:
+                key_len -= key_size_incr
+            
+        else:
+            break
+
+def main():
+    
+    options = [
+        ("Cifrar uma mensagem", cipher_msg),
+        ("Decifrar uma mensagem", decipher_msg),
+        ("Executar um ataque, encontrar a chave de uma mensagem cifrada, com um tamanho dado", find_key),
+        ("Executar um ataque, fazendo uma busca iterativa pela chave, dado um tamanho inicial", iterative_key_search)
+    ]
+
+    initial_msg = """Este é o cifrador/decifrador de textos da cifra de Vigenére. Alem disso, faz o ataque de uma mensagem, estimando uma provavel chave. Para isso, escolha uma das opcoes abaixo
+    """
+    
+    main_menu = (menu(options, choice_msg = "Escolha uma opcao: ", warn_input_msg="""Input inválido! Tente novamente.""", init_msg=initial_msg))
+
+    main_menu.execute()
 
 main()

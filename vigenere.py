@@ -1,7 +1,9 @@
 class cipher:
 
-    def __init__(self, key):
+    def __init__(self, key = "a"):
         self.change_key(key)
+
+        self.SPECIAL_CHAR = -1
 
     def change_key(self, key):
         key = key.upper()
@@ -18,6 +20,19 @@ class cipher:
 
         return key_idx
 
+    def __treat_special_chars__(self, text, converted_list):
+        filtered_list = []
+
+        i = 0
+        for c in text:
+            if ord(c) < ord('A') or ord(c) > ord('Z'):
+               converted_list[i] = self.SPECIAL_CHAR 
+            i += 1
+
+        filtered_list = converted_list
+
+        return filtered_list
+
     def encrypt(self, plain_text):
 
         self.key_idx = 0
@@ -26,21 +41,19 @@ class cipher:
         # Converts the string into a list of integers, the indexes of every char in the alfabet
         converted_list = list(map(lambda char: ord(char) - 65, plain_text))
 
-        i = 0
-        # Treating spaces
-        for c in plain_text:
-            if ord(c) < ord('A') or ord(c) > ord('Z'):
-               converted_list[i] = -1 
-            i += 1
+        converted_list = self.__treat_special_chars__(text = plain_text, converted_list = converted_list)
         
         encrypted_list = []
 
+        i = 0
         # Encrypting
         for val in converted_list:
-            if val != -1:
+            if val != self.SPECIAL_CHAR:
                 val = (val + self.key[self.__get_key_idx__()]) % 26 + 65
             else:
-                val = ord(' ')
+                val = ord(plain_text[i])
+                
+            i += 1
             encrypted_list.append(val)
 
 
@@ -57,25 +70,26 @@ class cipher:
         # Transforming the string into a list of integers, the indexes of chars in the alfabet
         crypted_list = list(map(lambda char: ord(char) - 65, crypted_text))
 
-        # Treating spaces
+        crypted_list = self.__treat_special_chars__(text = crypted_text, converted_list = crypted_list)
+
         i = 0
-        for c in crypted_text:
-            if ord(c) < ord('A') or ord(c) > ord('Z'):
-               crypted_list[i] = -1 
-            i += 1
-
-
         # Deciphering
         decrypted_list = []
         for val in crypted_list:
-            if val != - 1:
+            if val != self.SPECIAL_CHAR:
                 val = (val - self.key[self.__get_key_idx__()]) % 26 + 65
             else:
-                val = ord(' ')
+                val = ord(crypted_text[i])
+
+            i += 1
             decrypted_list.append(val)
             
         # Getting the string from the deciphered list
         decrypted_string = map(chr, decrypted_list)
-        decrypted_string = ''.join(decrypted_string)
+        decrypted_string = ''.join(decrypted_string).lower()
 
-        return decrypted_string.lower()
+        # Captalizing
+        temp_list = decrypted_string.split('.')
+        decrypted_string = '. '.join(map(lambda s : s.lstrip().capitalize(), temp_list))
+        
+        return decrypted_string
