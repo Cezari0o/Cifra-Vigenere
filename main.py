@@ -98,13 +98,62 @@ def iterative_key_search():
         else:
             break
 
+def config():
+
+    def change_max_key_list():
+
+        while True:
+            try:
+                global max_key_list 
+                max_key_list = int(input("Qual o novo tamanho? "))
+                if max_key_list < 1:
+                    raise
+            except:
+                print("Digite um tamanho valido!")
+            else:
+                break
+
+    def change_read_from_file():
+        global read_from_file
+        read_from_file = not read_from_file
+
+    def change_fr_file():
+        global fr_file
+        if fr_file == "frequency_en.txt":
+            fr_file = "frequency_ptbr.txt"
+        else:
+            fr_file = "frequency_en.txt"
+    
+    config_msg = (
+        """ \n--- Nome / Valor / Descricao ---\n
+read_from_file / {} / Determina se a mensagem de entrada é lida de um arquivo. Se for falso, le da entrada padrao.
+        
+max_key_list / {} / Listagem maxima de chaves/textos decifrados quando um ataque for executado.
+
+fr_file / {} / O arquivo de frequencia do alfabeto (determina o alfabeto de trabalho).
+          """.format(read_from_file, max_key_list, fr_file))
+
+    config_menu = menu(
+        [
+            ("Mudar read_from_file", change_read_from_file),
+            ("Mudar max_key_list", change_max_key_list),
+            ("Mudar fr_file (entre portugues ou ingles)", change_fr_file),
+            ("Voltar", lambda: 0),
+        ], 
+        choice_msg = "Escolha uma opcao: ", warn_input_msg="""Input invalido! Tente denovo.""", init_msg=config_msg)
+
+    config_menu.execute()
+    main()
+
 def main():
     
     options = [
         ("Cifrar uma mensagem", cipher_msg),
         ("Decifrar uma mensagem", decipher_msg),
         ("Executar um ataque, encontrar a chave de uma mensagem cifrada, com um tamanho dado", find_key),
-        ("Executar um ataque, fazendo uma busca iterativa pela chave, dado um tamanho inicial", iterative_key_search)
+        ("Executar um ataque, fazendo uma busca iterativa pela chave, dado um tamanho inicial", iterative_key_search),
+        ("Configurar as variaveis de ambiente", config),
+        ("Sair", lambda: 0)
     ]
 
     initial_msg = """Este é o cifrador/decifrador de textos da cifra de Vigenére. Alem disso, faz o ataque de uma mensagem, estimando uma provavel chave. Para isso, escolha uma das opcoes abaixo

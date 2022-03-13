@@ -1,3 +1,5 @@
+import os
+
 class menu:
     def __init__(self, options : list, choice_msg: str, warn_input_msg = """Invalid input! Type again""", init_msg = None):
 
@@ -13,7 +15,7 @@ class menu:
     def print_options(self):
 
         if self.init_msg != None:
-            print(self.init_msg)
+            print("\n" + self.init_msg)
         # A list of strings
         descriptions = []
         
@@ -48,3 +50,4 @@ class menu:
     def execute(self):
         self.print_options()
         self.execute_opt()
+        # os.system("clear || cls")
