@@ -2,23 +2,40 @@ from frequency_reader import freq_reader
 from re import sub
 
 class attacker:
+    """ A class that executes an attack to a crypted message, given by the user, assuming that the message is crypted with the vigenere cypher, and tries to find the key used to cipher the message. Uses the Friedman test in this process. """
 
     def __init__(self, frequency_file_path, max_key_listing = 5):
+        """ Init the instance class
+        
+        frequency_file_path : the path to the file frequency of the alphabet to work with
+
+        max_key_listing : the max quantity of the keys to return, when the function guess_key is called
+        
+        """
+
+        # Setting instance variables
         self.frequency_file_path = frequency_file_path
-        self.alfabet_idx_coincidence = 0
+        self.alphabet_idx_coincidence = 0
         self.cossets_table_list = []
 
         if max_key_listing <= 0:
             max_key_listing = 1
         self.max_key_listing = max_key_listing
 
-        # A dict with the frequency for the letters of an alfabet
-        self.alfabet_hist_freq = dict()
+        # A dict with the frequency for the letters of an alphabet
+        self.alphabet_hist_freq = dict()
 
     def set_frequency_file_path(self, file_path):
         self.frequency_file_path = file_path
     
     def __get_cossets__(self, text, cossets_count):
+        """ 
+        Given a text, returns a list of cossets
+
+        text: a string text to be used to generate the cossets_count.
+
+        cossets_count: the max quantity of cossets to generate.
+        """
         # A table with the cossets
         table = cossets_count * [""]
 
@@ -28,6 +45,10 @@ class attacker:
         return table
 
     def __get_histogram__(self, word):
+        """ Given a word, returns the histogram of the word
+        
+        word: the word from which the histogram will be generated 
+        """
         hist = dict()
 
         for c in word:
@@ -53,6 +74,11 @@ class attacker:
         return frequency_dict
         
     def __get_idx_coincidence__(self, cossets_table):
+        """ Returns the index of coincidence of the N cossets in cossets_table, where N is an arbitrary size.
+        
+        cossets_table: a list with the cossets generated using the __get_cossets__ 
+        
+        See also this link: https://pages.mtu.edu/~shene/NSF-4/Tutorial/VIG/Vig-IOC.html (Explain how to calculate the index of coincidence) """
         ic = 0
 
         for word in cossets_table:
@@ -67,10 +93,16 @@ class attacker:
 
             ic += word_ic
 
+        # Obtaining the average value of the index of coincidence
         ic = ic / len(cossets_table)
         return ic
 
     def __get_key__(self, key_size, cossets_table):
+        """ Given a key and a cossets table, tries to guess the key using the table. 
+        
+        key_size: the key size of the original key_size
+        
+        cossets_table: a table of cossets, generated with the function __get_cossets__"""
         key = ""
 
         char_list = []
@@ -82,19 +114,22 @@ class attacker:
 
         
         for cosset in cossets_table:
+            # A histogram of frequencies, the letters frequency in the cosset
             freq_dict = self.__get_freq_histogram__(cosset)
 
             
             sum_max = 0
+
+            # The shift answer
             shift_ans = 0
             for shift_count in range(alph_size):
 
-                
                 sum_temp = 0
                 for i in range(alph_size):
 
+                    # Only doing the calculation if the shifted index returns a frequency != 0
                     if freq_dict.get(char_list[(i + shift_count) % alph_size]) != None:
-                        sum_temp += self.alfabet_hist_freq[char_list[i]] * freq_dict[char_list[(i + shift_count) % alph_size]]
+                        sum_temp += self.alphabet_hist_freq[char_list[i]] * freq_dict[char_list[(i + shift_count) % alph_size]]
 
                 if sum_temp > sum_max:
                     sum_max = sum_temp
@@ -105,51 +140,57 @@ class attacker:
         return key
 
     def guess_key(self, crypted_text, max_key_len = 5):
-        alfabet_hist = dict()
+        """ Given a ciphertext, try to guess its generating key. 
+        
+        crypted_text: the keystream with the ciphered message.
+
+        max_key_len: the maximum size of the key to search for.
+        """
+
+        # The alphabet frequency "histogram"
+        alphabet_hist = dict()
 
         crypted_text = crypted_text.upper()
 
-        # Taking the chars in the alphabet
+        # Taking the chars in the alphabet, to use in the filtering
         chars = "[^"
         for i in range(ord('A'), ord('Z') + 1):
             chars += chr(i)
 
         chars += ']'
         
-        # Filtering, keeping only the alfabet in the crypted_text
+        # Filtering, keeping only the alphabet chars in the crypted_text
         crypted_text = sub(chars, '', crypted_text)
 
-
         with freq_reader(self.frequency_file_path) as fr:
-            alfabet_hist = fr.read_frequency()
+            alphabet_hist = fr.read_frequency()
 
-        self.alfabet_hist_freq = alfabet_hist
-        idx_coincidence_alfabet = 0
+        self.alphabet_hist_freq = alphabet_hist
+        idx_coincidence_alphabet = 0
         text_size = len(crypted_text)
 
-        # Calculating the alfabet's idx_of_coincidence
-        for idx in alfabet_hist:
-            idx_coincidence_alfabet += alfabet_hist[idx] * (alfabet_hist[idx] * text_size - 1) / (text_size - 1)
+        # Calculating the alphabet's idx_of_coincidence
+        for idx in alphabet_hist:
+            idx_coincidence_alphabet += alphabet_hist[idx] * (alphabet_hist[idx] * text_size - 1) / (text_size - 1)
 
 
-        self.alfabet_idx_coincidence = idx_coincidence_alfabet
+        self.alphabet_idx_coincidence = idx_coincidence_alphabet
+        key_size_list = []    # A list of tuples
+
         # Calculating the idx_of_coincidence for some key sizes
-        
-        # A list of tuples
-        key_size_list = []
         for i in range(1, max_key_len + 1):
             tb = self.__get_cossets__(text = crypted_text, cossets_count = i)
 
             idx_coincidence_n = self.__get_idx_coincidence__(cossets_table = tb)
 
+            # The tuple below is in the form (key size, idx of coincidence, cossets_table)
             key_size_list.append((i, idx_coincidence_n, tb))
-        
+
         key_size_list.sort(
             key = lambda key_tuple: key_tuple[1], reverse=True
         )
 
         key_size_list = key_size_list[0:self.max_key_listing]
-
 
         possible_keys_list = list(
             map(lambda key_tuple: 

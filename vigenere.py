@@ -1,11 +1,16 @@
 class cipher:
-
+    """ Class used to cipher/decipher a message, using the vigenere cipher. """
+    
     def __init__(self, key = "a"):
+        """
+        key: the key used to cipher/decipher the message
+        """
         self.change_key(key)
 
         self.SPECIAL_CHAR = -1
 
     def change_key(self, key):
+        """ Changes the key used in the class. """
         key = key.upper()
         
         # Converting the string into a integers list
@@ -21,6 +26,12 @@ class cipher:
         return key_idx
 
     def __treat_special_chars__(self, text, converted_list):
+        """ Given a list of integers the and a text, treats the special characters in the list.
+        
+        converted_list: a list of integers, keeping the Unicode points of every char in the text
+
+        text: a string, the message that generated converted_list
+        """
         filtered_list = []
 
         i = 0
@@ -34,11 +45,14 @@ class cipher:
         return filtered_list
 
     def encrypt(self, plain_text):
+        """ Cipher the given text. Returns a ciphered message, using the stored key.
 
+        plain_text: a string, the message that will be ciphered.
+        """
         self.key_idx = 0
         plain_text = plain_text.upper()
         
-        # Converts the string into a list of integers, the indexes of every char in the alfabet
+        # Converts the string into a list of integers, the indexes of every char in the alphabet
         converted_list = list(map(lambda char: ord(char) - 65, plain_text))
 
         converted_list = self.__treat_special_chars__(text = plain_text, converted_list = converted_list)
@@ -64,10 +78,14 @@ class cipher:
         return encrypted_string.lower()
 
     def decrypt(self, crypted_text):
+        """ Given a ciphered text, decipher it. Uses the key stored. 
+        
+        crypted_text: a string, the ciphered text that will be deciphered.
+        """
         self.key_idx = 0;
         crypted_text = crypted_text.upper()
         
-        # Transforming the string into a list of integers, the indexes of chars in the alfabet
+        # Transforming the string into a list of integers, the indexes of chars in the alphabet
         crypted_list = list(map(lambda char: ord(char) - 65, crypted_text))
 
         crypted_list = self.__treat_special_chars__(text = crypted_text, converted_list = crypted_list)

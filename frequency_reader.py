@@ -1,7 +1,12 @@
 
 class freq_reader(object):
-
+    """ Class used to read a file with the frequencies of an alphabet. 
+    Uses a specific format, given in the file frequency_ptbr.txt, for example. """
+    
     def __init__(self, file_path):
+        """
+        file_path: the path to the file with the frequencies
+        """
         self.file_path = file_path
         self.histogram = dict()
     
@@ -13,6 +18,7 @@ class freq_reader(object):
         return self
 
     def read_frequency(self):
+        """ Reads the frequency of the alphabet in the file. Returns a dict with the frequencies of every char. """
 
         lines = self.file.readlines()
         for line in lines:

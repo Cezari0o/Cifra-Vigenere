@@ -1,6 +1,6 @@
 from vigenere import cipher
 from attacker import attacker
-from math import ceil
+# from math import ceil
 from menu import menu
 
 read_from_file = True
@@ -8,6 +8,7 @@ max_key_list = 5
 fr_file = "frequency_en.txt"
 
 def read_text():
+    """ Lets a user input a text directly, or the text file path, according to the variable read_from_file. Returns the text """
     text = ""
     
     if read_from_file:
@@ -20,7 +21,8 @@ def read_text():
 
 
 def cipher_msg():
-
+    """ Let the user cipher a message """
+    
     key = input("Digite a chave: ")
     key = ''.join(key.split())
     
@@ -32,6 +34,7 @@ def cipher_msg():
 
     
 def decipher_msg():
+    """ Let the user decipher a message """
     key = input("Digite a chave: ")
     key = ''.join(key.split())
 
@@ -42,6 +45,7 @@ def decipher_msg():
     
 
 def find_key():
+    """ This function tries to break and find the key of a cipher text. Shows to the user the keys guessed by the program and the texts deciphered with every key """
     text = ""
     
     text = read_text()
@@ -59,13 +63,14 @@ def find_key():
         print(k, decipher.decrypt(text), sep=' / ', end="\n\n -------------------------------------------------------------------------------------------------------- \n\n")
 
 def iterative_key_search():
-    key_len = int(input("Digite o tamanho maximo de chave que voce espera: "))
+    """ This function tries to break and find the key of a cipher text, iteratively. Shows to the user the keys guessed by the program and the texts deciphered with every key """
 
     cracker = attacker(fr_file, max_key_listing=max_key_list)
     
     text = read_text()
 
     while True:
+        key_len = int(input("Digite o tamanho maximo de chave que voce espera: "))
         keys = cracker.guess_key(crypted_text = text, max_key_len = key_len)
 
         print("\nTamanho da chave:", key_len)
@@ -77,29 +82,12 @@ def iterative_key_search():
             
         continue_exec = (input("Continuar o programa? [Digite 'S' para continuar, sem aspas] ")).upper()
 
-        if continue_exec == 'S':
-
-            key_size_incr = ceil(key_len / 2)
-
-            key_size = '0'
-            while key_size != '1' and key_size != '2':
-                key_size = (input("""O tamanho da chave é maior ou menor?
-1 - maior ({})
-2 - menor ({})
-> """.format(key_len + key_size_incr, key_len - key_size_incr)))
-
-            
-            if key_size == '1':
-                key_len += key_size_incr
-
-            else:
-                key_len -= key_size_incr
-            
-        else:
+        if continue_exec != 'S':
             break
 
 def config():
-
+    """ Let the user configurate the ambient variables """
+    
     def change_max_key_list():
 
         while True:
@@ -134,7 +122,7 @@ fr_file / {} / O arquivo de frequencia do alfabeto (determina o alfabeto de trab
           """.format(read_from_file, max_key_list, fr_file))
 
     config_menu = menu(
-        [
+        options = [
             ("Mudar read_from_file", change_read_from_file),
             ("Mudar max_key_list", change_max_key_list),
             ("Mudar fr_file (entre portugues ou ingles)", change_fr_file),
@@ -143,10 +131,12 @@ fr_file / {} / O arquivo de frequencia do alfabeto (determina o alfabeto de trab
         choice_msg = "Escolha uma opcao: ", warn_input_msg="""Input invalido! Tente denovo.""", init_msg=config_msg)
 
     config_menu.execute()
+    # Re-executes the main (can cause error, but for now it works)
     main()
 
 def main():
-    
+
+    # The options to execute, in the program, with (description / function)
     options = [
         ("Cifrar uma mensagem", cipher_msg),
         ("Decifrar uma mensagem", decipher_msg),
