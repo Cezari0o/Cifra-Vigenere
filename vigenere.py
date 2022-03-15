@@ -22,7 +22,7 @@ class cipher:
         """
         key_idx = self.key_idx
         self.key_idx = (self.key_idx + 1) % len(self.key)
-
+ 
         return key_idx
 
     def __treat_special_chars__(self, text, converted_list):

@@ -105,6 +105,7 @@ class attacker:
         cossets_table: a table of cossets, generated with the function __get_cossets__"""
         key = ""
 
+
         char_list = []
 
         for char_idx in range(ord('A'), ord('Z') + 1):
