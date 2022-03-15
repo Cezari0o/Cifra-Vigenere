@@ -16,4 +16,4 @@ A pasta [`test`](https://github.com/Cezari0o/Cifra-Vigenere/tree/main/test) cont
 
 Estimando o tamanho de chave: https://pages.mtu.edu/~shene/NSF-4/Tutorial/VIG/Vig-IOC-Len.html
 
-Decifrando Vigenére, sem a chave: https://www.youtube.com/watch?v=LaWp_Kq0cKs&t=344s
+Decifrando Vigenére, sem a chave: https://www.youtube.com/watch?v=LaWp_Kq0cKs
